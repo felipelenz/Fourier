@@ -68,13 +68,13 @@ C3_50.data = offset(C3_50.data, 1000);
 C4_50.data = offset(C4_50.data, 1000);
 
 %% Declare Data
-data1=C1_48.data(:,seg); z1=4; %diode 1
-% data2=C4_50.data(:,seg); z2=115; %diode 11
+% data1=C1_48.data(:,seg); z1=4; %diode 1
+data2=C4_50.data(:,seg); z2=115; %diode 11
 % data2=C2_48.data(:,seg); z2=10;%diode 2
-data2=C3_48.data(:,seg); z2=16;%diode 3
+% data2=C3_48.data(:,seg); z2=16;%diode 3
 % data2=C4_48.data(:,seg); z1=22;%diode 4
 % data1=C1_49.data(:,seg); z1=28; %diode 5
-% data1=C2_49.data(:,seg); z1=42.5; %diode 6
+data1=C2_49.data(:,seg); z1=42.5; %diode 6
 % data1=C3_49.data(:,seg); z1=57;%diode 7
 % data2=C4_49.data(:,seg); z1=71.5; %diode 8
 % data1=C2_50.data(:,seg); z1=86; %diode 9
@@ -269,7 +269,7 @@ plot(x./2./pi,y);
 weightVector=(smooth(snr_2(1:a),100)).^2;
 
 costFunction = @(p) weightVector.*(p(1).*x.^3+p(2).*x.^2+p(3).*x+p(4)-y);
-p = lsqnonlin(costFunction,[1,1,1,0])
+p = lsqnonlin(costFunction,[0,0,0,0])
 
 hold all;
 phase_fit=p(1).*x.^3+p(2).*x.^2+p(3).*x+p(4);
@@ -280,14 +280,18 @@ group_velocity=(z2-z1)./group_delay;
 plot(x./2./pi,phase_fit);
 %%
 c=2.99e8;
+
+FigHandle = figure;
+set(FigHandle, 'Position', [100, 100, 1364, 530]);
+ 
 subplot(131)
 plot((x./2./pi).*1e-3,phase_fit,'Color',[0 114 189]./255); hold all;
 subplot(132)
-plot((x./2./pi).*1e-3,phase_delay,'Color',[0 114 189]./255); hold all;
-plot((x./2./pi).*1e-3,group_delay,'--','Color',[0 114 189]./255)
+plot((x./2./pi).*1e-3,phase_delay.*1e6,'Color',[0 114 189]./255); hold all;
+plot((x./2./pi).*1e-3,group_delay.*1e6,':','Color',[0 114 189]./255)
 subplot(133)
 plot((x./2./pi).*1e-3,(phase_velocity./c).*100,'Color',[0 114 189]./255); hold all;
-plot((x./2./pi).*1e-3,(group_velocity./c).*100,'--','Color',[0 114 189]./255); hold all;
+plot((x./2./pi).*1e-3,(group_velocity./c).*100,':','Color',[0 114 189]./255); hold all;
 %% Error Analysis
 max_error_Magnitude=zeros(1,a);
 min_error_Magnitude=zeros(1,a);
@@ -305,99 +309,156 @@ end
 
 subplot(131)
 phase_error=smooth(error_Phase,100);
-plot((x./2./pi).*1e-3,phase_fit+phase_error,'Color',[118 171 47]./255); 
-plot((x./2./pi).*1e-3,phase_fit-phase_error,'Color',[125 46 141]./255);
-%% Weighted upper Phase error fits
-weightVector=(smooth(snr_2(1:a),100));
-up=y+phase_error;
-costFunction = @(p) weightVector.*(p(1).*x.^3+p(2).*x.^2+p(3).*x+p(4)-up);
-p = lsqnonlin(costFunction,[1,1,1,0])
-
-phase_upper_limit=p(1).*x.^3+p(2).*x.^2+p(3).*x+p(4);
-phase_delay_lower_limit=-(p(1).*x.^2+p(2).*x+p(3)+p(4)./x);
-group_delay_lower_limit=-(3.*p(1).*x.^2+2.*p(2).*x.^1+p(3));
+% plot((x./2./pi).*1e-3,phase_fit+phase_error,'Color',[118 171 47]./255); 
+% plot((x./2./pi).*1e-3,phase_fit-phase_error,'Color',[125 46 141]./255);
+%% Carry phase error
+freq=[0:n-1].*(fs/n);
+w=2.*pi.*freq;
+lower_phase_limit=phase_fit-phase_error;
+phase_delay_lower_limit=real((phase_delay-phase_error(1:limit)./(w(1:limit)')));
+phase_delay_upper_limit=real((phase_delay+phase_error(1:limit)./(w(1:limit)')));
 phase_velocity_upper_limit=(z2-z1)./phase_delay_lower_limit;
-group_velocity_upper_limit=(z2-z1)./group_delay_lower_limit;
-
-%% Weighted lower Phase error fits
-weightVector=(smooth(snr_2(1:a),100));
-low=y-phase_error;
-costFunction = @(p) weightVector.*(p(1).*x.^3+p(2).*x.^2+p(3).*x+p(4)-low);
-p = lsqnonlin(costFunction,[1,1,1,0])
-
-phase_lower_limit=p(1).*x.^3+p(2).*x.^2+p(3).*x+p(4);
-phase_delay_upper_limit=-(p(1).*x.^2+p(2).*x+p(3)+p(4)./x);
-group_delay_upper_limit=-(3.*p(1).*x.^2+2.*p(2).*x.^1+p(3));
 phase_velocity_lower_limit=(z2-z1)./phase_delay_upper_limit;
+
+upper_phase_limit=phase_fit+phase_error;
+group_delay_lower_limit=real(group_delay(1:end-1)-smooth(-(diff(phase_error(1:limit))./(w(2)-w(1))),1000));
+group_delay_upper_limit=real(group_delay(1:end-1)+smooth(-(diff(phase_error(1:limit))./(w(2)-w(1))),1000));
+group_velocity_upper_limit=(z2-z1)./group_delay_lower_limit;
 group_velocity_lower_limit=(z2-z1)./group_delay_upper_limit;
+
+
+for j=1:numel(phase_delay_lower_limit+1)
+    if phase_delay_upper_limit(j)<phase_delay_lower_limit(j)
+        phase_delay_upper_limitv2(j)=phase_delay_lower_limit(j);
+        phase_delay_lower_limitv2(j)=phase_delay_upper_limit(j);
+        
+    else
+        phase_delay_upper_limitv2(j)=phase_delay_upper_limit(j);
+        phase_delay_lower_limitv2(j)=phase_delay_lower_limit(j);
+    end
+end
+
+for j=1:numel(group_delay_lower_limit+1)
+    if group_delay_upper_limit(j)<group_delay_lower_limit(j)
+        group_delay_upper_limitv2(j)=group_delay_lower_limit(j);
+        group_delay_lower_limitv2(j)=group_delay_upper_limit(j);
+        
+    else
+        group_delay_upper_limitv2(j)=group_delay_upper_limit(j);
+        group_delay_lower_limitv2(j)=group_delay_lower_limit(j);
+    end
+end
+
+for j=1:numel(phase_velocity_lower_limit+1)
+    if phase_velocity_upper_limit(j)<phase_velocity_lower_limit(j)
+        phase_velocity_upper_limitv2(j)=phase_velocity_lower_limit(j);
+        phase_velocity_lower_limitv2(j)=phase_velocity_upper_limit(j);
+        
+    else
+        phase_velocity_upper_limitv2(j)=phase_velocity_upper_limit(j);
+        phase_velocity_lower_limitv2(j)=phase_velocity_lower_limit(j);
+    end
+end
+
+for j=1:numel(group_velocity_lower_limit+1)
+    if group_velocity_upper_limit(j)<group_velocity_lower_limit(j)
+        group_velocity_upper_limitv2(j)=group_velocity_lower_limit(j);
+        group_velocity_lower_limitv2(j)=group_velocity_upper_limit(j);
+        
+    else
+        group_velocity_upper_limitv2(j)=group_velocity_upper_limit(j);
+        group_velocity_lower_limitv2(j)=group_velocity_lower_limit(j);
+    end
+end
+
+phase_delay_lower_limit=phase_delay_lower_limitv2;
+phase_delay_upper_limit=phase_delay_upper_limitv2;
+group_delay_lower_limit=group_delay_lower_limitv2;
+group_delay_upper_limit=group_delay_upper_limitv2;
+
+phase_velocity_lower_limit=phase_velocity_lower_limitv2;
+phase_velocity_upper_limit=phase_velocity_upper_limitv2;
+group_velocity_lower_limit=group_velocity_lower_limitv2;
+group_velocity_upper_limit=group_velocity_upper_limitv2;
+% 
+% figure;
+% plot((w(1:limit)./2./pi).*1e-3,(phase_velocity_lower_limit./c).*100,'Color',[236 176 31]./255); hold all
+% plot((w(1:limit)./2./pi).*1e-3,(phase_velocity_upper_limit./c).*100,'Color',[216 82 24]./255);
+% plot((w(1:limit-1)./2./pi).*1e-3,(group_velocity_lower_limit./c).*100,':','Color',[236 176 31]./255); hold all
+% plot((w(1:limit-1)./2./pi).*1e-3,(group_velocity_upper_limit./c).*100,':','Color',[216 82 24]./255);
+% xlim([50,300])
+
 %%
-subplot(131)
-plot((x./2./pi).*1e-3,phase_upper_limit,'Color',[216 82 24]./255); 
-plot((x./2./pi).*1e-3,phase_lower_limit,'Color',[236 176 31]./255); 
+
+subplot(131);
+plot((w(1:limit)./2./pi).*1e-3,lower_phase_limit,'Color',[236 176 31]./255); hold all;
+plot((w(1:limit)./2./pi).*1e-3,upper_phase_limit,'Color',[216 82 24]./255)
 xlim([fi,fc/2].*1e-3)
 xlabel('Frequency (kHz)');
 ylabel('Transfer function phase (radians)');
 grid
-legend('best fit','upper limit','lower limit','upper limit fit','lower limit fit')
+legend('best fit','lower limit','upper limit')
 set(0,'defaultlinelinewidth',2)
 set(gca,'fontsize',16)
 
-subplot(132)
-plot((x./2./pi).*1e-3,phase_delay_upper_limit,'Color',[216 82 24]./255); 
-plot((x./2./pi).*1e-3,phase_delay_lower_limit,'Color',[236 176 31]./255); 
-plot((x./2./pi).*1e-3,group_delay_upper_limit,'--','Color',[216 82 24]./255); 
-plot((x./2./pi).*1e-3,group_delay_lower_limit,'--','Color',[236 176 31]./255); 
+subplot(132);
+plot((w(1:limit)./2./pi).*1e-3,phase_delay_lower_limit.*1e6,'Color',[236 176 31]./255); hold all;
+plot((w(1:limit)./2./pi).*1e-3,phase_delay_upper_limit.*1e6,'Color',[216 82 24]./255); 
+plot((w(1:limit-10)./2./pi).*1e-3,group_delay_lower_limit(1:end-9).*1e6,':','Color',[236 176 31]./255);
+plot((w(1:limit-10)./2./pi).*1e-3,group_delay_upper_limit(1:end-9).*1e6,':','Color',[216 82 24]./255);
 xlabel('Frequency (kHz)');
-ylabel('Time (s)');
+ylabel('Time (\mus)');
 grid
 legend('\tau_p','\tau_g',...
-    '\tau_p upper limit','\tau_p lower limit',...
-    '\tau_g upper limit','\tau_g lower limit')
+    '\tau_p lower limit','\tau_p upper limit',...
+    '\tau_g lower limit','\tau_g upper limit',...
+    'location','southwest')
 xlim([fi,fc/2].*1e-3)
 set(0,'defaultlinelinewidth',2)
 set(gca,'fontsize',16)
 
-subplot(133)
-set(0,'defaultlinelinewidth',2)
-plot((x./2./pi).*1e-3,(phase_velocity_upper_limit./c).*100,'Color',[216 82 24]./255); 
-plot((x./2./pi).*1e-3,(phase_velocity_lower_limit./c).*100,'Color',[236 176 31]./255); 
-plot((x./2./pi).*1e-3,(group_velocity_upper_limit./c).*100,'--','Color',[216 82 24]./255); 
-plot((x./2./pi).*1e-3,(group_velocity_lower_limit./c).*100,'--','Color',[236 176 31]./255); 
+subplot(133);
+plot((w(1:limit)./2./pi).*1e-3,(phase_velocity_lower_limit./c).*100,'Color',[236 176 31]./255); hold all;
+plot((w(1:limit)./2./pi).*1e-3,(phase_velocity_upper_limit./c).*100,'Color',[216 82 24]./255);
+plot((w(1:limit-1)./2./pi).*1e-3,(group_velocity_lower_limit./c).*100,':','Color',[236 176 31]./255);
+plot((w(1:limit-1)./2./pi).*1e-3,(group_velocity_upper_limit./c).*100,':','Color',[216 82 24]./255);
 xlabel('Frequency (kHz)');
 ylabel('velocity (% of c)');
 grid
 legend('v_p','v_g',...
-    'v_p upper limit','v_p lower limit',...
-    'v_g upper limit','v_g lower limit',...
+    'v_p lower limit','v_p upper limit',...
+    'v_g lower limit','v_g upper limit',...
     'location','northwest')
 xlim([fi,fc/2].*1e-3)
 set(gca,'fontsize',16)
+
 %%
 f=(x./2./pi).*1e-3;
 sample_increment=50e3/(round(fs/n)); %50 kHz
-samples_array=[2 3 4 5 6 7 8 9].*sample_increment;
+samples_array=[2 3 4 5 6 7].*sample_increment;
 figure;
 frequency=f(samples_array);
 narrowband_phase_velocity=phase_velocity(samples_array);
-narrowband_phase_velocity_upper_limit=phase_velocity_upper_limit(samples_array)-narrowband_phase_velocity;
-narrowband_phase_velocity_lower_limit=phase_velocity_lower_limit(samples_array)-narrowband_phase_velocity;
+
+narrowband_phase_velocity_upper_limit=phase_velocity_upper_limit(samples_array)'-narrowband_phase_velocity;
+narrowband_phase_velocity_lower_limit=phase_velocity_lower_limit(samples_array)'-narrowband_phase_velocity;
 errorbar(frequency,(narrowband_phase_velocity./c).*100,...
-         (narrowband_phase_velocity_upper_limit./c).*100,...
-         (narrowband_phase_velocity_lower_limit./c).*100,'rx')
+         (narrowband_phase_velocity_lower_limit./c).*100,...
+         (narrowband_phase_velocity_upper_limit./c).*100,'rx')
 xlabel('Frequency (kHz)');
 ylabel('Phase velocity (% of c)');
 
 figure;     
 narrowband_group_velocity=group_velocity(samples_array);
-narrowband_group_velocity_upper_limit=group_velocity_upper_limit(samples_array)-narrowband_group_velocity;
-narrowband_group_velocity_lower_limit=group_velocity_lower_limit(samples_array)-narrowband_group_velocity;
+narrowband_group_velocity_upper_limit=group_velocity_upper_limit(samples_array)'-narrowband_group_velocity;
+narrowband_group_velocity_lower_limit=group_velocity_lower_limit(samples_array)'-narrowband_group_velocity;
 errorbar(frequency,(narrowband_group_velocity./c).*100,...
-         (narrowband_group_velocity_upper_limit./c).*100,...
-         (narrowband_group_velocity_lower_limit./c).*100,'rx')
+         (narrowband_group_velocity_lower_limit./c).*100,...
+         (narrowband_group_velocity_upper_limit./c).*100,'rx')
 xlabel('Frequency (kHz)');
 ylabel('Group velocity (% of c)');
 %%
-D1_D3=struct('narrowband_phase_velocity',narrowband_phase_velocity,...
+D6_D11=struct('narrowband_phase_velocity',narrowband_phase_velocity,...
     'narrowband_phase_velocity_upper_limit',narrowband_phase_velocity_upper_limit,...
     'narrowband_phase_velocity_lower_limit',narrowband_phase_velocity_lower_limit,...
     'narrowband_group_velocity',narrowband_group_velocity,...
