@@ -191,11 +191,13 @@ amplitude=double(amplitude(low_limit:a).'); % in dB
 
 figure;
 subplot(211)
-plot((x./2./pi).*1e-6,amplitude);
+semilogx((x./2./pi),amplitude);
 title('Current-to-Luminosity Transfer Function');
 ylabel('Transfer Function Amplitude (dB)');
-xlabel('Frequency (MHz)');
+xlabel('Frequency (Hz)');
+grid on;
 subplot(212)
-plot((x./2./pi).*1e-6,y);
+semilogx((x./2./pi),y);
 ylabel('Transfer Function Phase (rad)');
-xlabel('Frequency (MHz)');
+xlabel('Frequency (Hz)');
+grid on;
