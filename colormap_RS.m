@@ -1,22 +1,24 @@
-A=imread('DSC_0417.JPG');
+A=imread('NEO UF 16-10.JPG');
 image(A)
 %%
-z=zeros(size(UF16_23_4.x));
+z=zeros(size(UF16_10_1.x));
 
 close all
 
-for i=-80:50
+% for i=120:250 %M-Comps time scale
+for i=-30:20 %RS time scale
     iteration=0;
-    time_step=15*i;
+    time_step=20*i; %RS time scale
+%     time_step=300*i; %M-Comps time scale
     t=time_step*10e-9*1e6;
     t0=5e5+time_step;
     time=D1.time(t0);
-    col=Ampl(:,t0);
+    col=Ampl(1:11,t0);
     col=col'; 
-    col=resample(col,numel(UF16_23_4.x),numel(col));
+    col=resample(col,numel(UF16_10_1.x),numel(col));
 
     fh=figure(1); subplot(221);
-    text(0.2,0.5,'UF 16-23, RS 1','fontsize',30); axis off
+    text(0,0.5,'UF 16-10, RS 1','fontsize',30); axis off
     
     figure(1); drawnow; subplot(223);
     plot(D1.time.*1e6,Ampl(1,:),'b','linewidth',2); hold on;
@@ -26,13 +28,13 @@ for i=-80:50
     plot([time, time].*1e6,[-.1,max(Ampl(1,:))+0.1],'r','linewidth',2); hold off;
     xlabel('Time (\mus)');
     ylabel('Calibrated luminosity (dig. V)');
-    xlim([-10,10]);
+    xlim([-10,50]);
     ylim([-.1,max(Ampl(1,:))+0.1]);
     set(gca,'Fontsize',20);
     
     drawnow; figure(1); subplot(122); %pause(0.1);
-    surface([UF16_23_4.x;UF16_23_4.x],...
-        [UF16_23_4.y;UF16_23_4.y],[z;z],...
+    surface([UF16_10_1.x;UF16_10_1.x],...
+        [UF16_10_1.y;UF16_10_1.y],[z;z],...
          [col;col],'facecol','no','edgecol','interp','linew',10);
     caxis([0 0.1]);%0.5*max(max_lum_2015)]);  
 %     caxis([min(col) 1.2*max(col)]);  
