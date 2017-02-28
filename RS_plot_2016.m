@@ -1,6 +1,8 @@
-suffix=0;
-seg=3;
-date=081316;
+suffix=2;
+% iihi_suffix=0;
+% cal=20613.86;
+seg=1;
+date=080116;
 
 pathname = ['/Volumes/Promise 12TB RAID5/2016 Data/0',int2str(date)];
 cd(pathname)
@@ -45,7 +47,11 @@ C2_filename29 = ['C2AC0000',int2str(suffix),'.trc'];
 C3_filename29 = ['C3AC0000',int2str(suffix),'.trc'];
 C4_filename29 = ['C4AC0000',int2str(suffix),'.trc'];
 
-
+% IIHI_file=['C1AC0000',int2str(iihi_suffix),'.trc'];
+% 
+% pathname26 = ['/Volumes/Promise 12TB RAID5/2016 Data/0',int2str(date),'/Scope26/'];
+% IIHI = read_lecroy([pathname26 IIHI_file]);
+% cd(pathname)
 
 % Change to the Scope43 directory
 pathname43 = ['/Volumes/Promise 12TB RAID5/2016 Data/0',int2str(date),'/Scope43/'];
@@ -127,7 +133,6 @@ C4_29 = read_lecroy([pathname29 C4_filename29]);
 
 cd(pathname)
 
-
 D1.data = offset(D1.data, 1000);
 D2.data = offset(D2.data, 1000);
 D3.data = offset(D3.data, 1000);
@@ -167,62 +172,99 @@ D29.data = offset(D29.data, 1000);
 D30.data = offset(D30.data, 1000);
 D31.data = offset(D31.data, 1000);
 C4_29.data = offset(C4_29.data, 1000);
+
+IIHI.data = offset(IIHI.data, 1000).*cal;
 %% 2014 APDs
+%0 m
 offset=0;
 plot(D2.time.*1e6,D2.data(:,seg).*1); hold all;
 offset=max(D2.data(:,seg).*1);
 max_lum=[max(D2.data(:,seg).*1)];
 peak=[offset];
 
+%100 m
+% offset=0;
 plot(D5.time.*1e6,D5.data(:,seg).*.82+offset)
 offset=max(D5.data(:,seg).*.82)+offset;
 max_lum=[max_lum max(D5.data(:,seg).*.82)];
 peak=[peak offset];
 
+%200 m
+% offset=0;
 plot(D8.time.*1e6,D8.data(:,seg).*.57+offset)
 offset=max(D8.data(:,seg).*.57)+offset;
 max_lum=[max_lum max(D8.data(:,seg).*.57)];
 peak=[peak offset];
 
+%300 m
+% offset=0;
 plot(D11.time.*1e6,D11.data(:,seg).*0.81+offset)
 offset=max(D11.data(:,seg).*0.81)+offset;
 max_lum=[max_lum max(D11.data(:,seg).*0.81)];
 peak=[peak offset];
 
+%400 m
+% offset=0;
 plot(D14.time.*1e6,D14.data(:,seg).*1.62+offset)
 offset=max(D14.data(:,seg).*1.62)+offset;
 max_lum=[max_lum max(D14.data(:,seg).*1.62)];
 peak=[peak offset];
-
+ 
+%500 m
+% offset=0;
 plot(D17.time.*1e6,D17.data(:,seg).*1.34/10+offset)
 offset=max(D17.data(:,seg).*1.34/10)+offset;
 max_lum=[max_lum max(D17.data(:,seg).*1.34/10)];
 peak=[peak offset];
 
+%600 m
+% offset=0;
 plot(D20.time.*1e6,D20.data(:,seg).*0.76/10+offset)
 offset=max(D20.data(:,seg).*0.76/10)+offset;
 max_lum=[max_lum max(D20.data(:,seg).*0.76/10)];
 peak=[peak offset];
 
+%700 m
+% offset=0;
 plot(D23.time.*1e6,D23.data(:,seg).*1.54/10+offset)
 offset=max(D23.data(:,seg).*1.54/10)+offset;
 max_lum=[max_lum max(D23.data(:,seg).*1.54/10)];
 peak=[peak offset];
 
+%800 m
+% offset=0;
 plot(D26.time.*1e6,D26.data(:,seg).*1.44/10+offset)
 offset=max(D26.data(:,seg).*1.44/10)+offset;
 max_lum=[max_lum max(D26.data(:,seg).*1.44/10)];
 peak=[peak offset];
 
+%900 m
+% offset=0;
 plot(D29.time.*1e6,D29.data(:,seg).*1.8/10+offset)
 offset=max(D29.data(:,seg).*1.8/10)+offset;
 max_lum=[max_lum max(D29.data(:,seg).*1.8/10)];
 peak=[peak offset];
 
+%1 km
+% offset=0;
 plot(D31.time.*1e6,D31.data(:,seg).*1.78/10+offset)
 offset=max(D31.data(:,seg).*1.78/10)+offset;
 max_lum=[max_lum max(D31.data(:,seg).*1.78/10)];
 peak=[peak offset];
+
+legend('0 m','100 m','200 m','300 m','400 m','500 m','600 m','700 m','800 m','900 m','1000 m')
+%%
+Ampl_2014diodes=[D2.data(:,seg)'.*1; %0m
+      D5.data(:,seg)'.*.82; %100 m
+      D8.data(:,seg)'.*.57; %200 m
+      D11.data(:,seg)'.*0.81; % 300 m
+      D14.data(:,seg)'.*1.62; %400 m
+      D17.data(:,seg)'.*1.34/10; % 500 m
+      D20.data(:,seg)'.*0.76/10; %600 m
+      D23.data(:,seg)'.*1.54/10; %700 m
+      D26.data(:,seg)'.*1.44/10; %800 m
+      D29.data(:,seg)'.*1.8/10; % 900m
+      D31.data(:,seg)'.*1.78/10]; %1km
 %%
 h_2014=[0,100,200,300,400,500,600,700,800,900,1000];
 max_lum_2014=max_lum;
@@ -330,27 +372,27 @@ plot(D30.time.*1e6,D30.data(:,seg).*0.91/10+offset)
 offset=max(D30.data(:,seg).*0.91/10)+offset;
 max_lum=[max_lum max(D30.data(:,seg).*0.91/10)];
 peak=[peak offset];
-
-Ampl=[D1.data(:,seg)'.*1.2;
-      D3.data(:,seg)'.*1.3;
-      D4.data(:,seg)'.*1.2;
-      D6.data(:,seg)'.*1.18;
-      D7.data(:,seg)'.*1.4;
-      D9.data(:,seg)'.*1.37;
-      D10.data(:,seg)'.*1.48;
-      D12.data(:,seg)'.*1.49;
-      D13.data(:,seg)'.*1.24;
-      D15.data(:,seg)'.*0.78;
-      D16.data(:,seg)'.*1.64/10;
-      D18.data(:,seg)'.*.78/10;
-      D19.data(:,seg)'.*1.97/10;
-      D21.data(:,seg)'.*1.64/10;
-      D22.data(:,seg)'.*.82/10;
-      D24.data(:,seg)'.*0.82/10;
-      D25.data(:,seg)'.*0.95/10;
-      D27.data(:,seg)'.*0.89/10;
-      D28.data(:,seg)'.*0.98/10;
-      D30.data(:,seg)'.*0.91/10];
+%%
+Ampl=[D1.data(:,seg)'.*1.2; %0m
+      D3.data(:,seg)'.*1.3; %50 m
+      D4.data(:,seg)'.*1.2; %100 m
+      D6.data(:,seg)'.*1.18; %150 m
+      D7.data(:,seg)'.*1.4; %200 m
+      D9.data(:,seg)'.*1.37; % 250 m
+      D10.data(:,seg)'.*1.48; % 300 m
+      D12.data(:,seg)'.*1.49; %350 m
+      D13.data(:,seg)'.*1.24; %400 m
+      D15.data(:,seg)'.*0.78; %450 m
+      D16.data(:,seg)'.*1.64/10; % 500 m
+      D18.data(:,seg)'.*.78/10; %550 m
+      D19.data(:,seg)'.*1.97/10; %600 m
+      D21.data(:,seg)'.*1.64/10; %650 m
+      D22.data(:,seg)'.*.82/10; %700 m
+      D24.data(:,seg)'.*0.82/10; %750 m
+      D25.data(:,seg)'.*0.95/10; %800 m
+      D27.data(:,seg)'.*0.89/10; %850 m
+      D28.data(:,seg)'.*0.98/10; % 900m
+      D30.data(:,seg)'.*0.91/10]; %1km
 %%
 h_2015=[0,50,100,150,200,250,300,350,400,450,500,550,600,...
     650,700,750,800,850,900,1000];
@@ -358,3 +400,92 @@ h_2015=[0,50,100,150,200,250,300,350,400,450,500,550,600,...
 max_lum_2015=max_lum;
 figure;
 plot(h_2015,max_lum_2015,'*-')
+%% Measure speed
+close all;
+a=20;
+time=D1.time;
+sample=(time-time(1))./1e-8;
+data=Ampl(a,:).';
+plot(data./max(data));
+%%
+[x,y]=ginput(3);
+x=round(x);
+x=x.'
+%%
+noise=data(x(1):x(2));
+hold all; 
+plot(sample(x(1):x(2)),data(x(1):x(2))./max(data))
+
+mu=mean(noise)
+sigma=std(noise)
+%%
+figure;
+plot(data); hold on;
+plot([sample(1),sample(end)],[mu,mu],'-r');
+plot([sample(1),sample(end)].*a,[mu+sigma,mu+sigma],'--r');
+plot([sample(1),sample(end)].*a,[mu-sigma,mu-sigma],'--r');
+
+% Find Max
+[MaxAmpl, MaxRawInd]=max(data(x(2):x(3))); %find light peak
+MaxRawInd=MaxRawInd+x(2)-1;
+data_topeak=data(x(2):MaxRawInd);
+
+% Find Min
+[~, Min_index]=max(abs(1./((mu+3*sigma)-data_topeak))); hold on;
+Min_index=x(2)+Min_index-1;
+MinAmpl=data(Min_index);
+
+Ampl=(MaxAmpl-MinAmpl);
+disp('Luminosity Amplitude (digitizer volts):');
+disp(Ampl)
+
+%Find the closest point to 5% Amplitude
+[~, five_percent_index]=max(abs(1./((0.05*Ampl+MinAmpl)-data_topeak)));
+five_percent_index=x(2)+five_percent_index-1;
+
+five_percent=[five_percent_index]
+plot(five_percent_index,data(five_percent_index),'k*')
+
+xlim([x(1),x(3)])
+%% Plot Pairs aimed at same height
+figure;
+time=D2.time.*1e6;
+a=-20;
+b=100;
+
+% subplot(3,4,1)
+% plotyy(time,Ampl(1,:),IIHI.time.*1e6,IIHI.data(:,seg).*cal);
+
+for i=1:10
+    subplot(3,4,i+1);
+    plot(time,Ampl(2*i-1,:)./max(Ampl(2*i-1,:))); hold all;
+    plot(time,Ampl_2014diodes(i,:)./max(Ampl_2014diodes(i,:)))
+    xlim([a,b])
+    ylim([-0.1,1.1])
+    grid on;
+    title([num2str((i-1)*100),' m']);
+end
+subplot(3,4,12);
+plot(time,Ampl(20,:)./max(Ampl(20,:))); hold all;
+plot(time,Ampl_2014diodes(11,:)./max(Ampl_2014diodes(11,:)))
+xlim([a,b])
+ylim([-0.1,1.1])
+grid on;
+title(['1,000 m']);
+
+suptitle('August 1, 2016 - UF 16-07, RS#5')
+
+%%
+% temp=Ampl(1,:)./max(Ampl(1,:)); %2015 diode
+% temp2=Ampl_2014diodes(1,:)./max(Ampl_2014diodes(1,:)); %2014 diode
+
+temp=(D1.data(:,seg).*1.2)./max(D1.data(:,seg).*1.2);%2015 diode
+temp2=(D2.data(:,seg).*1)./max(D2.data(:,seg).*1);%2014 diode
+
+figure;
+plot(temp)
+hold all
+plot(temp2)
+plot(temp-temp2)
+max(temp-temp2)
+max(IIHI.data(:,seg).*cal)
