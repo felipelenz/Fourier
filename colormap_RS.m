@@ -1,5 +1,26 @@
+%This code plots the photodiodes colormap from the time domain APD
+%measurements. 
+%Before you run this code, you should run RS_plot_2016, because we'll need
+%to use the Ampl output of the aforementioned code.
+
+%In order to make this work, you'll first need to open a
+%photograph containing the channel geometry. In order to do this you can
+%simple drag a JPEG to the Workspace ->> 
+%or:
 A=imread('NEO UF 16-10.JPG');
-image(A)
+image(A);
+%% Now you'll need to manually trace the channel geometry using the ginput
+%function
+[x,y]=ginput(100);
+%% You'll need to adjust the x and y coordinates so that the bottom of the
+%channel is centered at [0,0]
+
+h_per_pixel=0.2180; %for NEO
+% h_per_pixel=0.2145; %for SWO
+X=x-x(1);
+Y=-(y-y(1)).*h_per_pixel;
+%% Save struct
+UF16_10_1=struct('x',X.','y',Y.');
 %%
 z=zeros(size(UF16_10_1.x));
 
@@ -32,7 +53,8 @@ for i=-30:20 %RS time scale
     ylim([-.1,max(Ampl(1,:))+0.1]);
     set(gca,'Fontsize',20);
     
-    drawnow; figure(1); subplot(122); %pause(0.1);
+    drawnow; figure(1); subplot(122); 
+    %this section plots the 2D colormap:
     surface([UF16_10_1.x;UF16_10_1.x],...
         [UF16_10_1.y;UF16_10_1.y],[z;z],...
          [col;col],'facecol','no','edgecol','interp','linew',10);
@@ -45,22 +67,4 @@ for i=-30:20 %RS time scale
     ylim([0,505])
     title(['Elapsed Time = ', num2str(t),' \mus']);
     set(gca,'Fontsize',20)
-    set(fh,'position',[10 100 1200 1000]);
-    
-%     % gif utilities
-% %     set(gcf,'color','w'); % set figure background to white
-%     drawnow;
-%     frame = getframe(1);
-%     im = frame2im(frame);
-%     [imind,cm] = rgb2ind(im,256);
-%     outfile = 'sinewave.gif';
-%  
-%     % On the first loop, create the file. In subsequent loops, append.
-%     if iteration==0
-%         imwrite(imind,cm,outfile,'gif','DelayTime',0,'loopcount',inf);
-%     else
-%         imwrite(imind,cm,outfile,'gif','DelayTime',0,'writemode','append');
-%     end
-%     iteration=iteration+1;
-    
 end
